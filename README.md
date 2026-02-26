@@ -122,6 +122,8 @@ Terraform will output the value for the **URL** for **api_gateway** which is nee
 
 # Cognigy Webchat Widget (React)
 
+![Cognigy Webchat Widget](/chat.png)
+
 The React application acts as the chat interface for Cognigy.  
 It:
 - Connects to Cognigy via WebSocket (Socket.IO)
