@@ -203,3 +203,42 @@ Can be deployed to:
 - S3 + CloudFront
 - Nginx
 - Any static hosting platform
+
+## Amazon Connect Third-Party App (Agent Desktop)
+
+This solution includes an Amazon Connect third-party app that runs inside the Amazon Connect agent workspace to give agents immediate context when a Cognigy chat is escalated.
+
+What it’s used for
+
+When a customer conversation is handed over from Cognigy (bot) to Amazon Connect (live agent), the React webchat sends metadata (including the conversation transcript and escalation context) into Amazon Connect contact attributes. This third-party app reads those attributes and presents them in a structured, agent-friendly UI.
+
+**Key capabilities:**
+
+- Transcript viewer
+- Displays the full Cognigy transcript for the current contact.
+- Supports both “legacy markdown transcript” and the newer JSON-array transcript format (the app normalizes JSON → markdown, then parses it into turns).
+- Search & navigation
+- Keyword search across the transcript.
+- Highlights matches.
+- Next/previous navigation through search results.
+- Automatically scrolls to the currently selected match.
+- Sentiment + escalation context
+- Displays sentiment and escalation “reason/summary” (when provided).
+- Provides a simple “Summary, Sentiment & Next Steps” panel so agents can quickly understand why the chat was escalated.
+
+**How it works (high level)**
+
+The app is initialized via the Amazon Connect Apps framework (AmazonConnectApp.init).  
+It creates a ContactClient to receive contact lifecycle events.  
+
+On contact connect:
+
+- Retrieves contact attributes (e.g., transcript, sentiment, reason).
+- Normalizes + parses transcript into a chat-like display.
+- Renders transcript bubbles aligned by speaker (bot/system/agent vs customer).
+
+On ACW (after contact work) start:
+
+- Clears state and resets UI for the next contact.
+
+This app is intended to be the agent-side companion to the customer webchat, ensuring agents have full conversational history and context at the moment of escalation.
