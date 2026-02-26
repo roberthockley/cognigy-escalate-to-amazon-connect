@@ -1,7 +1,7 @@
 # Prerequisites
 Before deploying this Terraform configuration, ensure you have the following installed and configured:
 
-1. Terraform
+**Terraform**
 
 Terraform CLI (recommended version: 1.5+)  
 
@@ -10,7 +10,8 @@ terraform version
 
 Installation instructions are available on the official Terraform website.
 
-2. AWS CLI
+**AWS CLI**
+
 AWS CLI v2 installed  
 
 Configured with credentials that have permission to create:
@@ -27,7 +28,8 @@ aws sts get-caller-identity
 
 Installation and configuration instructions are available on the official AWS documentation site.
 
-3. AWS Permissions
+**AWS Permissions**
+
 The AWS credentials used must have sufficient permissions to:  
 - Create and manage Amazon Connect instances and flows
 - Create Lambda functions and layers
