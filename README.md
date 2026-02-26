@@ -161,13 +161,12 @@ The React application requires environment variables to connect to:
 An example file is provided:
 
         .env-example
-Setup
 
 Copy the example file:
 
         cp .env-example .env
 
-Open .env and replace the placeholder values:
+Open **.env** and replace the placeholder values:
 
         REACT_APP_ENDPOINTURL=https://your-cognigy-endpoint
         REACT_APP_URLTOKEN=your-cognigy-url-token
