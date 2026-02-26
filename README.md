@@ -283,6 +283,8 @@ Can be deployed to:
 
 ## Thirdparty App Configuration in Amazon Connect
 
+![Amazon Connect Agent Desktop](/agent_desktop.png)
+
 During development, you can run the third-party app locally and configure Amazon Connect to load it from your machine.
 
 **Prerequisites**
@@ -303,7 +305,7 @@ Register a new third-party app and set the app’s URL to:
 
         http://localhost:3001
 
-Assign the new THrid party App to oyur Amazon Connect instance.  
+Assign the new Third party App to oyur Amazon Connect instance.  
 In Amazon Connect Security Profiles add the app to your user profiles
 Create a User
 Assign to the Profile you updated
