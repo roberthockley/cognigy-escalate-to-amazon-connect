@@ -1,4 +1,7 @@
 /*/.terraform
+/*/terraform.tfstate
+/*/terraform.tfstate.backup
+/*/dev.tfvars
 /node_modules
 /*/node_modules
 /.pnp
