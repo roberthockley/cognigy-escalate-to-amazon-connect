@@ -39,6 +39,15 @@ The AWS credentials used must have sufficient permissions to:
 - Create S3 buckets
 - Create CloudWatch log groups
 
+**Node.js**
+
+**NPM**
+
+Verify installation:
+
+        node -v
+        npm -v
+
 # Terraform
 Below is a concise inventory list of what the Terraform deployment created.  
 This list intentionally omits any ARNs, IDs, names, URLs, or other concrete values — it only lists the services, resources and logical components that were installed and wired together.  
@@ -106,3 +115,86 @@ Managed policy granting Amazon Connect access (used by the Lambda role)
         terraform init
         terraform plan
         terraform apply
+
+# React Webchat Application
+
+The React application acts as the chat interface for Cognigy.  
+It:
+- Connects to Cognigy via WebSocket (Socket.IO)
+- Sends and receives messages
+- Displays bot responses
+- Detects escalation triggers from Cognigy
+- Initiates handover to Amazon Connect
+- Establishes a live agent session via Amazon Connect ChatJS
+- Routes messages between:
+- Cognigy (bot mode)
+- Amazon Connect (agent mode)
+- Automatically returns to Cognigy after agent disconnect
+- Maintains a local transcript
+- Allows transcript download
+- Supports embedded page rendering from Cognigy payloads
+
+In short: 
+The React app is the conversational frontend and orchestration layer between Cognigy and Amazon Connect.
+
+## Installing Dependencies
+
+From the React project directory:
+
+        npm install
+
+This installs all required packages, including:
+
+- React
+- @cognigy/socket-client
+- Amazon Connect ChatJS (via script)
+- Cloudscape UI components
+
+## Updating the Environment Variables
+
+The React application requires environment variables to connect to:
+
+- Cognigy
+- Amazon Connect (via API Gateway)
+- AWS region configuration
+
+An example file is provided:
+
+        .env-example
+Setup
+
+Copy the example file:
+
+        cp .env-example .env
+
+Open .env and replace the placeholder values:
+
+        REACT_APP_ENDPOINTURL=https://your-cognigy-endpoint
+        REACT_APP_URLTOKEN=your-cognigy-url-token
+        REACT_APP_STARTCHATURL=https://your-api-gateway-url
+        REACT_APP_AWSREGION=ap-southeast-1
+
+## Running Locally (Development Mode)
+
+        npm start
+
+This:
+
+- Starts a local development server
+- Enables hot reload
+- Typically runs at http://localhost:3000
+
+## Building for Production
+
+        npm run build
+
+This:
+
+- Creates an optimized production build
+- Outputs static files to the build/ directory
+
+Can be deployed to:
+
+- S3 + CloudFront
+- Nginx
+- Any static hosting platform
