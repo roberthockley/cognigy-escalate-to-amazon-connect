@@ -593,7 +593,7 @@ export default function CognigyWebchatClone({ endpointUrl, urlToken, user }) {
           onLoad={() => setEmbedError(null)}
           onError={() =>
             setEmbedError(
-              "This page refused to load inside the app (likely X-Frame-Options / CSP frame-ancestors). If it’s your page, allow embedding. Otherwise you’ll need to open it in a new tab."
+              "This page refused to load inside the app (likely X-Frame-Options / CSP frame-ancestors). If it's your page, allow embedding. Otherwise you'll need to open it in a new tab."
             )
           }
         />
