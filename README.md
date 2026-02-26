@@ -116,7 +116,7 @@ Managed policy granting Amazon Connect access (used by the Lambda role)
         terraform plan
         terraform apply
 
-# React Webchat Application
+# Cognigy Webchat Widget (React)
 
 The React application acts as the chat interface for Cognigy.  
 It:
