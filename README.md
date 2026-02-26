@@ -118,7 +118,7 @@ Managed policy granting Amazon Connect access (used by the Lambda role)
 
 ## Terraform Output
 
-Terraform will output the value for **api_gateway** which is needed for the **Cognigy Webchat Widget**
+Terraform will output the value for the **URL** for **api_gateway** which is needed for the **Cognigy Webchat Widget**
 
 # Cognigy Webchat Widget (React)
 
