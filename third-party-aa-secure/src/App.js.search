@@ -1,0 +1,316 @@
+// src/App.js
+import React, { useMemo, useRef, useEffect, useState, useCallback } from "react";
+import Container from "@cloudscape-design/components/container";
+import Input from "@cloudscape-design/components/input";
+import Button from "@cloudscape-design/components/button";
+import FormField from "@cloudscape-design/components/form-field";
+
+const demoTranscript = [
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" },
+  {
+    speaker: "Sophie",
+    message: "Welcome to Standard Chartered Bank, how can I help you today?"
+  },
+  { speaker: "Geoffrey", message: "i want to waive my fee" },
+  {
+    speaker: "Sophie",
+    message:
+      "To continue we have to verify you. Please enter the one time pin send to your mobile phone."
+  },
+  { speaker: "Geoffrey", message: "1234" }
+];
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+export default function App() {
+  const [transcript] = useState(demoTranscript);
+  const [query, setQuery] = useState("");
+  const [currentMatchIdx, setCurrentMatchIdx] = useState(0);
+
+  // Map: messageIndex -> DOM node (bubble)
+  const itemRefs = useRef(new Map());
+
+  // Build all matches across transcript
+  const matches = useMemo(() => {
+    const q = query.trim();
+    if (!q) return [];
+
+    const regex = new RegExp(escapeRegExp(q), "gi");
+    const found = [];
+
+    transcript.forEach((turn, messageIndex) => {
+      let m;
+      while ((m = regex.exec(turn.message)) !== null) {
+        found.push({
+          messageIndex,
+          start: m.index,
+          end: m.index + m[0].length
+        });
+        if (m.index === regex.lastIndex) regex.lastIndex++;
+      }
+    });
+
+    return found;
+  }, [transcript, query]);
+
+  // Reset current match index when match set changes
+  useEffect(() => {
+    setCurrentMatchIdx(0);
+  }, [matches.length]);
+
+  // Clamp/wrap current index safely
+  const safeIdx = useMemo(() => {
+    if (matches.length === 0) return 0;
+    return ((currentMatchIdx % matches.length) + matches.length) % matches.length;
+  }, [currentMatchIdx, matches.length]);
+
+  const goNext = useCallback(() => {
+    if (matches.length === 0) return;
+    setCurrentMatchIdx((prev) => prev + 1);
+  }, [matches.length]);
+
+  const goPrev = useCallback(() => {
+    if (matches.length === 0) return;
+    setCurrentMatchIdx((prev) => prev - 1);
+  }, [matches.length]);
+
+  // Scroll to current match bubble + flash it
+  useEffect(() => {
+    if (matches.length === 0) return;
+
+    const match = matches[safeIdx];
+    const node = itemRefs.current.get(match.messageIndex);
+
+    if (node && typeof node.scrollIntoView === "function") {
+      node.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      const original = node.style.boxShadow;
+      node.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.25)";
+      const t = setTimeout(() => {
+        node.style.boxShadow = original;
+      }, 800);
+
+      return () => clearTimeout(t);
+    }
+  }, [matches, safeIdx]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        goNext();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        goPrev();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [goNext, goPrev]);
+
+  // Highlight query occurrences within a message
+  function renderHighlightedText(text) {
+    const q = query.trim();
+    if (!q) return text;
+
+    const regex = new RegExp(escapeRegExp(q), "gi");
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    let idx = 0;
+
+    while ((match = regex.exec(text)) !== null) {
+      const start = match.index;
+      const end = regex.lastIndex;
+
+      if (start > lastIndex) {
+        parts.push(<span key={`${idx}-a`}>{text.slice(lastIndex, start)}</span>);
+      }
+
+      parts.push(
+        <mark
+          key={`${idx}-b`}
+          style={{
+            backgroundColor: "#fff68f",
+            padding: "0 2px",
+            borderRadius: 3
+          }}
+        >
+          {text.slice(start, end)}
+        </mark>
+      );
+
+      lastIndex = end;
+      idx++;
+      if (match.index === regex.lastIndex) regex.lastIndex++;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(<span key={`${idx}-c`}>{text.slice(lastIndex)}</span>);
+    }
+
+    return parts;
+  }
+
+  return (
+    <div style={{ width: 450, padding: 16, fontFamily: "system-ui, sans-serif" }}>
+      {/* Optional: keep Cloudscape Container for consistent look */}
+      <Container>
+        {/* Custom shell to ensure footer is visible immediately */}
+        <div
+          style={{
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            background: "#fff",
+            overflow: "hidden"
+          }}
+        >
+          {/* Scrollable transcript body */}
+          <div style={{ maxHeight: "40vh", overflowY: "auto", padding: 12 }}>
+            {transcript.map((turn, index) => (
+              <div
+                key={index}
+                style={{
+                  display: "flex",
+                  justifyContent: turn.speaker === "Sophie" ? "flex-start" : "flex-end",
+                  marginBottom: 8
+                }}
+              >
+                <div
+                  ref={(el) => {
+                    if (el) itemRefs.current.set(index, el);
+                    else itemRefs.current.delete(index);
+                  }}
+                  style={{
+                    maxWidth: "60%",
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    backgroundColor: turn.speaker === "Sophie" ? "#f2f3f5" : "#e6f2ff",
+                    transition: "box-shadow 200ms ease"
+                  }}
+                >
+                  <strong>{turn.speaker}:</strong> {renderHighlightedText(turn.message)}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Always-visible sticky footer */}
+          <div
+            style={{
+              position: "sticky",
+              bottom: 0,
+              background: "#fff",
+              borderTop: "1px solid #e5e7eb",
+              padding: "8px 12px",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              zIndex: 10
+            }}
+          >
+            <div style={{ width: "70%" }}>
+              <FormField stretch={true} style={{ margin: 0 }}>
+                <Input
+                  value={query}
+                  onChange={({ detail }) => setQuery(detail.value)}
+                  placeholder="Keyword search..."
+                />
+              </FormField>
+
+              <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                {matches.length > 0 ? `${safeIdx + 1} / ${matches.length}` : "0 matches"}
+              </div>
+            </div>
+
+            <div style={{ width: "30%", display: "flex", justifyContent: "flex-end", gap: 6 }}>
+              <Button
+                iconName="angle-up"
+                variant="icon"
+                onClick={goPrev}
+                disabled={matches.length === 0}
+              />
+              <Button
+                iconName="angle-down"
+                variant="icon"
+                onClick={goNext}
+                disabled={matches.length === 0}
+              />
+            </div>
+          </div>
+        </div>
+      </Container>
+    </div>
+  );
+}

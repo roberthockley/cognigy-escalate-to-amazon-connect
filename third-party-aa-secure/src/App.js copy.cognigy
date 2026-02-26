@@ -1,0 +1,239 @@
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { ContactClient } from "@amazon-connect/contact";
+import { AmazonConnectApp, AppContactScope } from "@amazon-connect/app";
+import Container from "@cloudscape-design/components/container";
+import Header from "@cloudscape-design/components/header";
+import SpaceBetween from "@cloudscape-design/components/space-between";
+import Input from "@cloudscape-design/components/input";
+import Button from "@cloudscape-design/components/button";
+import Icon from "@cloudscape-design/components/icon";
+import FormField from "@cloudscape-design/components/form-field";
+
+
+export default function App() {
+  const [status, setStatus] = useState("Waiting for a contact…");
+  const [contactId, setContactId] = useState(null);
+  const [channelType, setChannelType] = useState(null);
+  const [transcript, setTranscript] = useState([]);
+  const [summary, setSummary] = useState([]);
+  const [sentiment, setSentiment] = useState(null);
+  const [error, setError] = useState(null);
+  const [value, setValue] = React.useState("");
+
+  // Prevent double init in React 18 StrictMode (dev)
+  const didInit = useRef(false);
+
+  // Hold the single ContactClient instance
+  const contactClientRef = useRef(null);
+
+  const matches = useMemo(() => {
+    const q = query.trim();
+    if (!q) return [];
+
+    const regex = new RegExp(escapeRegExp(q), "gi");
+    const found = [];
+
+    transcript.forEach((turn, messageIndex) => {
+      let m;
+      while ((m = regex.exec(turn.message)) !== null) {
+        found.push({
+          messageIndex,
+          start: m.index,
+          end: m.index + m[0].length
+        });
+        if (m.index === regex.lastIndex) regex.lastIndex++;
+      }
+    });
+
+    return found;
+  }, [transcript, query]);
+
+  // Reset current match index when match set changes
+  useEffect(() => {
+    setCurrentMatchIdx(0);
+  }, [matches.length]);
+
+  useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+    const { provider } = AmazonConnectApp.init({
+      onCreate: () => console.log("App created"),
+      onDestroy: () => console.log("App destroyed"),
+    });
+
+    const contactClient = new ContactClient({ provider });
+
+    contactClient.onConnected(async (data) => {
+      // data includes contactId in cross-contact mode per docs :contentReference[oaicite:4]{index=4}
+      const contactId = data.contactId;
+      console.log("**** connected", data);
+      // fetch all attributes
+      const attrs = await contactClient.getAttributes(contactId, "*");
+      console.log("**** attrs.sentiment.value", attrs?.sentiment?.value);
+      //setSummary(attrs?.reason?.value || "No summary available");
+      setSentiment(attrs?.sentiment?.value || "No sentiment available");
+      const parsedTurns = attrs?.transcript?.value
+        .split(/(?=\*[A-Za-z]+\*:)/)
+        .map((turn) => {
+          const match = turn.match(/\*([A-Za-z]+)\*:\s*(.*)/);
+          if (!match) return null;
+
+          return {
+            speaker: match[1],
+            message: match[2],
+          };
+        })
+        .filter(Boolean);
+      console.log("**** parsedTurns", parsedTurns);
+      setTranscript(parsedTurns);
+      const parsedSummary = attrs?.reason?.value
+        ?.split(/(?=\*\*\d+\.\s)/g)
+        .map((chunk) => {
+          const match = chunk.match(
+            /^\*\*(\d+\.\s[^*]+)\*\*\s*(?:-\s*)?\n?([\s\S]*)$/ // dash optional
+          );
+          if (!match) return null;
+
+          return {
+            title: match[1].trim(),
+            content: match[2]
+              .replace(/^\s*-\s*/, "") // remove leading bullet dash if present
+              .trim(),
+          };
+        })
+        .filter(Boolean);
+      parsedSummary.unshift({ title: null, content: null });
+      console.log("**** parsedSummary", parsedSummary);
+      setSummary(parsedSummary);
+      console.log("**** attrs", attrs);
+    });
+    contactClient.onMissed((data) => console.log("**** missed", data));
+    contactClient.onCleared?.((data) => console.log("**** cleared", data));
+    contactClient.onStartingAcw?.((data) => {
+      console.log("**** acw", data);
+      setTranscript([])
+      setSentiment(null);
+      setSummary([]);
+      setStatus("Waiting for a contact…");
+      setContactId(null);
+      setChannelType(null);
+    });
+  }, []);
+
+  function goNext() {
+    console.log("goNext" );
+  }
+  function goPrev() {
+    console.log("goPrev" );
+  }
+
+  return (
+    <div style={{ width: 450, padding: 16, fontFamily: "system-ui, sans-serif" }}>
+      <div
+        style={{
+          height: "40vh",
+          overflowY: "auto",
+        }}
+      >
+        <Container
+          footer={
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                alignItems: "center",
+                padding: "8px 12px",
+                boxSizing: "border-box",
+              }}
+            >
+              {/* LEFT: 75% — input, left-aligned */}
+              <div style={{ width: "75%" }}>
+                <FormField stretch={true} style={{ margin: 0 }}>
+                  <Input
+                    onChange={({ detail }) => setValue(detail.value)}
+                    value={value}
+                    placeholder="Keyword search..."
+                    style={{ width: "100%" }}
+                  />
+                </FormField>
+              </div>
+
+              {/* RIGHT: 25% — buttons, right-aligned */}
+              <div
+                style={{
+                  width: "25%",
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  gap: 6,
+                }}
+              >
+                <Button iconName="angle-up" variant="icon" onClick={() => goPrev()} />
+                <Button iconName="angle-down" variant="icon" onClick={() => goNext()} />
+              </div>
+            </div>
+          }
+        >
+          {transcript.map((turn, index) => (
+            <div
+              key={index}
+              style={{
+                display: "flex",
+                justifyContent:
+                  turn.speaker === "Sophie" ? "flex-start" : "flex-end",
+                marginBottom: 8,
+              }}
+            >
+              {summary ? <div
+                style={{
+                  maxWidth: "60%",
+                  padding: "8px 12px",
+                  borderRadius: 8,
+                  backgroundColor:
+                    turn.speaker === "Sophie" ? "#f2f3f5" : "#e6f2ff",
+                }}
+              >
+                <strong>{turn.speaker}:</strong> {turn.message}
+
+              </div> : null}
+            </div>
+          ))}
+        </Container>
+      </div>
+      <Container
+        header={
+          <Header variant="h2">
+            Summary, Sentiment & Next Steps
+          </Header>
+        }
+      >
+        <div
+          style={{
+            height: "40vh",
+            overflowY: "auto",
+          }}
+        >
+          <SpaceBetween size="xs">
+            <Container>
+              <SpaceBetween direction="horizontal" size="xs">
+                <Header
+                  variant="h4">Sentiment:</Header>
+                {sentiment}
+              </SpaceBetween>
+            </Container>
+            <Container>
+              <SpaceBetween size="xs">
+                <Header
+                  variant="h4">Summary:</Header> {summary.map((item, idx) => (
+                    <div key={idx} style={{ marginBottom: "12px" }}>
+                      <strong>{item.title}</strong>
+                      <div>{item.content}</div>
+                    </div>
+                  ))}
+              </SpaceBetween>
+            </Container>
+          </SpaceBetween>
+        </div>
+      </Container>
+    </div>
+  );
+}
