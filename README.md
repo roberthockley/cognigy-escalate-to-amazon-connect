@@ -242,3 +242,75 @@ On ACW (after contact work) start:
 - Clears state and resets UI for the next contact.
 
 This app is intended to be the agent-side companion to the customer webchat, ensuring agents have full conversational history and context at the moment of escalation.
+
+## Installing Dependencies
+
+From the React project directory:
+
+        npm install
+
+This installs all required packages, including:
+
+- React
+- @cognigy/socket-client
+- Amazon Connect ChatJS (via script)
+- Cloudscape UI components
+
+## Running Locally (Development Mode)
+
+        npm start
+
+This:
+
+- Starts a local development server
+- Enables hot reload
+- Typically runs at http://localhost:3000 (will be a different port like 3001 if running )
+
+## Building for Production
+
+        npm run build
+
+This:
+
+- Creates an optimized production build
+- Outputs static files to the build/ directory
+
+Can be deployed to:
+
+- S3 + CloudFront
+- Nginx
+- Any static hosting platform
+
+## Thirdparty App Configuration in Amazon Connect
+
+During development, you can run the third-party app locally and configure Amazon Connect to load it from your machine.
+
+**Prerequisites**
+
+You can run the app locally (it serves a web UI on a local port).  
+You can access your Amazon Connect instance admin settings.  
+Your browser can reach http://localhost:3001 on the same machine where you are logged into Amazon Connect.  
+
+**High-level setup steps**
+
+Start the app locally so it is available at:
+
+        http://localhost:3001
+
+In Amazon Connect Admin, go to the section for Apps / Third-party applications (naming varies slightly by console/experience).
+
+Register a new third-party app and set the app’s URL to:
+
+        http://localhost:3001
+
+Assign the new THrid party App to oyur Amazon Connect instance.  
+In Amazon Connect Security Profiles add the app to your user profiles
+Create a User
+Assign to the Profile you updated
+Login as the new User, not the Emergency Access
+
+more information about Third Pary Apps can be found here: [Third Party App Guide](https://docs.aws.amazon.com/connect/latest/adminguide/3p-apps.html)
+
+Important notes:
+
+- Localhost only works for you (your own browser on your machine). Other users won’t be able to load your localhost.
