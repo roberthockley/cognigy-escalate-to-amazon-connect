@@ -1,6 +1,6 @@
-Introduction
+# Introduction
 
-This project demonstrates an end-to-end integration between Cognigy AI and Amazon Connect, enabling seamless escalation from an automated chatbot to a live agent within a unified customer experience.  The solution provisions the required AWS infrastructure using Terraform — including Amazon Connect, API Gateway, Lambda, IAM, and supporting services — and provides both a React-based customer webchat and an Amazon Connect third-party agent application. Together, these components allow bot-driven conversations to transition smoothly to live agents while preserving full transcript history, context, sentiment, and escalation metadata. The result is a production-ready reference architecture for intelligent chatbot-to-agent handover using modern, infrastructure-as-code best practices.
+This project demonstrates an end-to-end integration between **Cognigy AI** and **Amazon Connect**, enabling seamless escalation from an automated chatbot to a live agent within a unified customer experience.  The solution provisions the required AWS infrastructure using **Terraform** — including **Amazon Connect**, **API Gateway**, **Lambda**, **IAM**, and supporting services — and provides both a React-based customer webchat and an **Amazon Connect third-party agent application**. Together, these components allow bot-driven conversations to transition smoothly to live agents while preserving full transcript history, context, sentiment, and escalation metadata. The result is a production-ready reference architecture for intelligent chatbot-to-agent handover using modern, infrastructure-as-code best practices.
 
 ![Cognigy Escalation to Amazon Conenct via Chat](/cognigytoamazon.png)
 
