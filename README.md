@@ -5,8 +5,9 @@ Before deploying this Terraform configuration, ensure you have the following ins
 
 Terraform CLI (recommended version: 1.5+)  
 
-Verify installation:  
-terraform version  
+Verify installation: 
+
+    terraform version  
 
 Installation instructions are available on the official Terraform website.
 
@@ -24,7 +25,7 @@ Configured with credentials that have permission to create:
 
 Verify configuration:  
 
-aws sts get-caller-identity
+    aws sts get-caller-identity
 
 Installation and configuration instructions are available on the official AWS documentation site.
 
@@ -102,6 +103,6 @@ Managed policy granting Amazon Connect access (used by the Lambda role)
 
 3. Run:
 
-   terraform init
-   terraform plan
-   terraform apply
+    terraform init
+    terraform plan
+    terraform apply
