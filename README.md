@@ -103,6 +103,6 @@ Managed policy granting Amazon Connect access (used by the Lambda role)
 
 3. Run:
 
-    terraform init
-    terraform plan
-    terraform apply
+        terraform init
+        terraform plan
+        terraform apply
