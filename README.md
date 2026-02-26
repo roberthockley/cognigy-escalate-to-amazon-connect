@@ -1,3 +1,41 @@
+# Prerequisites
+Before deploying this Terraform configuration, ensure you have the following installed and configured:
+
+1. Terraform
+
+Terraform CLI (recommended version: 1.5+)  
+
+Verify installation:  
+terraform version  
+
+Installation instructions are available on the official Terraform website.
+
+2. AWS CLI
+AWS CLI v2 installed  
+
+Configured with credentials that have permission to create:
+- Amazon Connect resources
+- API Gateway
+- Lambda
+- IAM roles and policies
+- S3 buckets
+- CloudWatch log groups
+
+Verify configuration:  
+
+aws sts get-caller-identity
+
+Installation and configuration instructions are available on the official AWS documentation site.
+
+3. AWS Permissions
+The AWS credentials used must have sufficient permissions to:  
+- Create and manage Amazon Connect instances and flows
+- Create Lambda functions and layers
+- Create API Gateway APIs and integrations
+- Create IAM roles and attach policies
+- Create S3 buckets
+- Create CloudWatch log groups
+
 # Terraform
 Below is a concise inventory list of what the Terraform deployment created.  
 This list intentionally omits any ARNs, IDs, names, URLs, or other concrete values — it only lists the services, resources and logical components that were installed and wired together.  
@@ -12,7 +50,7 @@ This list intentionally omits any ARNs, IDs, names, URLs, or other concrete valu
 - AWS IAM Role(s) and IAM Policy/Policy Attachments
 - Amazon Connect configuration
 
-## Contact flows:
+## Amazon Connect Configuration:
 - Inbound contact flow
 - Customer queue flow
 - Disconnect flow
@@ -47,3 +85,21 @@ CloudWatch logging for the Lambda function
 IAM Role for Lambda with attached policies  
 Policy for CloudWatch logging  
 Managed policy granting Amazon Connect access (used by the Lambda role)  
+
+## Terraform Variables
+
+1. Copy the example file:
+
+   cp terraform.tfvars.example terraform.tfvars
+
+2. Edit `terraform.tfvars` and provide real values for:
+   - AWS account ID
+   - Region
+   - Connect instance name
+   - Flow names and greetings
+
+3. Run:
+
+   terraform init
+   terraform plan
+   terraform apply
