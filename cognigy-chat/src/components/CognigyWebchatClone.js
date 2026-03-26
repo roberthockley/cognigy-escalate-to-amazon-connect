@@ -142,7 +142,7 @@ export default function CognigyWebchatClone({ endpointUrl, urlToken, user }) {
   // --- Cognigy Socket.IO ---
   useEffect(() => {
     let disposed = false;
-
+    console.log("Connecting to Cognigy with", { endpointUrl, urlToken, userId, sessionId });
     const client = new SocketClient(endpointUrl.replace(/\/$/, ""), urlToken, {
       userId,
       sessionId,

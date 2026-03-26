@@ -7,6 +7,7 @@ import GNB from "./GNB.jpg"
 
 function App() {
   const [startChat, setStartChat] = React.useState(false);
+  
   return (
     <div
       style={{
@@ -28,6 +29,7 @@ function App() {
               metadata: { plan: "gold" }
             }}
           />
+          {console.log("Starting chat with", { endpointUrl: process.env.REACT_APP_ENDPOINTURL, urlToken: process.env.REACT_APP_URLTOKEN })}
         ) : (
           <Container
             header={
